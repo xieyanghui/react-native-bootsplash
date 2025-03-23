@@ -21,6 +21,11 @@ import com.facebook.react.uimanager.PixelUtil
 import java.util.Timer
 import java.util.TimerTask
 
+import android.app.Dialog
+import android.os.Bundle
+import android.view.WindowManager
+
+
 object RNBootSplashModuleImpl {
   const val NAME = "RNBootSplash"
 
@@ -39,6 +44,19 @@ object RNBootSplashModuleImpl {
 
   private var mInitialDialog: RNBootSplashDialog? = null
   private var mFadeOutDialog: RNBootSplashDialog? = null
+
+  private fun setActivityAndroidP(dialog: Dialog?) {
+        // 设置全屏展示
+        if (Build.VERSION.SDK_INT >= 28) {
+            dialog?.window?.let { window ->
+                window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS) // 全屏显示
+                val lp = window.attributes
+                lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                window.attributes = lp
+            }
+        }
+  }
+
 
   internal fun init(activity: Activity?, @StyleRes themeResId: Int) {
     if (mThemeResId != -1) {
@@ -104,7 +122,7 @@ object RNBootSplashModuleImpl {
     }
 
     mInitialDialog = RNBootSplashDialog(activity, mThemeResId, false)
-
+     setActivityAndroidP(mInitialDialog)
     UiThreadUtil.runOnUiThread {
       mInitialDialog?.show { mStatus = Status.VISIBLE }
     }
